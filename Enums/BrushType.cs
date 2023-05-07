@@ -2,8 +2,12 @@
 
 public enum BrushType
 {
+    Clear,
     Forest,
+    Grassland,
+    Plain,
     Mountain,
     Water,
-    Clear
+    HighDensityUrbanArea,
+    LowDensityUrbanArea
 }
