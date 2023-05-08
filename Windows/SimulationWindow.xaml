@@ -1,0 +1,73 @@
+﻿<Window x:Class="MFFSuCA.Windows.SimulationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:MFFSuCA.Windows"
+        mc:Ignorable="d"
+        Title="SimulationWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <GroupBox Header="Simulation Controls" Grid.Row="1" Style="{StaticResource GroupBoxStyle}">
+            <!-- Control area -->
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+                <Button x:Name="StopButton" Content="Stop" Height="35" Style="{StaticResource UtilityButtonStyle}" />
+                <Button x:Name="ResumeButton" Content="Resume" Height="35" Style="{StaticResource UtilityButtonStyle}" />
+                <StackPanel Orientation="Vertical" Margin="10">
+                    <Label Content="Time:" />
+                    <TextBlock x:Name="TimeTextBlock" Margin="10">0</TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="10">
+                    <Label Content="Speed:" />
+                    <ComboBox x:Name="SpeedComboBox" Margin="10">
+                        <ComboBoxItem Content="x1" IsSelected="True" />
+                        <ComboBoxItem Content="x2" />
+                        <ComboBoxItem Content="x4" />
+                        <ComboBoxItem Content="x8" />
+                    </ComboBox>
+                </StackPanel>
+                <!-- Wind direction combobox -->
+                <StackPanel Orientation="Vertical" Margin="10">
+                    <Label Content="Wind direction:" />
+                    <ComboBox x:Name="WindDirectionComboBox" Margin="10">
+                        <ComboBoxItem Content="North" IsSelected="True" />
+                        <ComboBoxItem Content="North-East" />
+                        <ComboBoxItem Content="East" />
+                        <ComboBoxItem Content="South-East" />
+                        <ComboBoxItem Content="South" />
+                        <ComboBoxItem Content="South-West" />
+                        <ComboBoxItem Content="West" />
+                        <ComboBoxItem Content="North-West" />
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Wind speed slider -->
+                <StackPanel Orientation="Vertical" Margin="10">
+                    <Label Content="Wind speed:" />
+                    <Slider x:Name="WindSpeedSlider" Margin="10" Minimum="0" Maximum="67" Value="0" Width="100" />
+                </StackPanel>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Simulation canvas -->
+        <Canvas x:Name="SimulationCanvas" Grid.Row="2" Width="800" Height="600" />
+
+        <!-- Menu -->
+        <Menu Grid.Row="0">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open map" />
+                <Separator></Separator>
+                <MenuItem Header="_Save simulation state" />
+                <MenuItem Header="_Load simulation state" />
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                
+            </MenuItem>
+        </Menu>
+    </Grid>
+</Window>
