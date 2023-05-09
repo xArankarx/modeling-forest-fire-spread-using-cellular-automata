@@ -16,8 +16,9 @@
         <GroupBox Header="Simulation Controls" Grid.Row="1" Style="{StaticResource GroupBoxStyle}">
             <!-- Control area -->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
-                <Button x:Name="StopButton" Content="Stop" Height="35" Style="{StaticResource UtilityButtonStyle}" />
-                <Button x:Name="ResumeButton" Content="Resume" Height="35" Style="{StaticResource UtilityButtonStyle}" />
+                <Button x:Name="StopButton" Content="Stop" Height="35" Style="{StaticResource UtilityButtonStyle}" IsEnabled="False" Click="StopButton_Click" />
+                <Button x:Name="PauseButton" Content="Pause" Height="35" Style="{StaticResource UtilityButtonStyle}" IsEnabled="False" Click="PauseButton_Click" />
+                <Button x:Name="StartButton" Content="Start" Height="35" Style="{StaticResource UtilityButtonStyle}" Click="StartButton_Click" />
                 <StackPanel Orientation="Vertical" Margin="10">
                     <Label Content="Time:" />
                     <TextBlock x:Name="TimeTextBlock" Margin="10">0</TextBlock>
@@ -55,12 +56,12 @@
         </GroupBox>
 
         <!-- Simulation canvas -->
-        <Canvas x:Name="SimulationCanvas" Grid.Row="2" Width="800" Height="600" />
+        <Canvas x:Name="SimulationCanvas" Grid.Row="2" Width="800" Height="600" MouseDown="SimulationCanvas_MouseDown" />
 
         <!-- Menu -->
         <Menu Grid.Row="0">
             <MenuItem Header="_File">
-                <MenuItem Header="_Open map" />
+                <MenuItem Header="_Open map" Click="LoadMapMenuItem_Click" />
                 <Separator></Separator>
                 <MenuItem Header="_Save simulation state" />
                 <MenuItem Header="_Load simulation state" />
