@@ -7,6 +7,7 @@ namespace MFFSuCA.Windows {
     public partial class MainWindow : Window {
         public MainWindow() {
             InitializeComponent();
+            
             // var mapConstructorWindow = new MapConstructorWindow();
             // mapConstructorWindow.Show();
             

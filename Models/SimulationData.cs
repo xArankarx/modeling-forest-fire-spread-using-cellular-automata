@@ -5,7 +5,7 @@ namespace MFFSuCA.Models;
 // TODO: Charts window, gather data from simulation
 
 public class SimulationData {
-    public int TotalVegetation { get; set; }
+    public double TotalVegetation { get; init; }
     
     public List<int> BurningArea { get; set; } = new();
     

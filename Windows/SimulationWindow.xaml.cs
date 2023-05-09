@@ -45,6 +45,8 @@ public partial class SimulationWindow {
 
     private Dictionary<Rectangle, Cell> _cells = new();
 
+    private SimulationChartsWindow? _simulationChartsWindow;
+
     private Task? _simulationTask;
 
     private CancellationTokenSource _simulationCancellationTokenSource;
@@ -74,12 +76,12 @@ public partial class SimulationWindow {
     private async Task SimulateAsync() {
         var random = new Random();
         _simulationCancellationTokenSource = new CancellationTokenSource();
-        
+
         while (true) {
             if (_simulationCancellationTokenSource.IsCancellationRequested) {
                 break;
             }
-            
+
             var simulationSpeedMultiplier = ((ComboBoxItem)SpeedComboBox.SelectedItem).Content.ToString() switch {
                 "x1" => 1,
                 "x2" => 2,
@@ -110,9 +112,9 @@ public partial class SimulationWindow {
                             var newCell = new Cell {
                                 TerrainType = cell.TerrainType,
                                 X = cell.X,
-                                Y = cell.Y
+                                Y = cell.Y,
+                                BurningState = BurningState.Burned
                             };
-                            newCell.BurningState = BurningState.Burned;
                             var newRect = new Rectangle {
                                 Width = RectSize,
                                 Height = RectSize,
@@ -128,7 +130,7 @@ public partial class SimulationWindow {
                             continue;
                     }
 
-                    var neighbours = GetNeighbours(cell, rect);
+                    var neighbours = GetNeighbours(rect);
                     // TODO: Add probability of extinguishing
                     var probability = UpdateProbability(cell, ref neighbours);
                     if (!(random.NextDouble() < probability))
@@ -148,7 +150,7 @@ public partial class SimulationWindow {
                         Width = RectSize,
                         Height = RectSize,
                         Fill = rect.Fill,
-                        Stroke = new SolidColorBrush(Colors.Red),
+                        Stroke = new SolidColorBrush(Colors.OrangeRed),
                         StrokeThickness = 2
                     };
                     Canvas.SetLeft(newRect2, Canvas.GetLeft(rect));
@@ -156,11 +158,11 @@ public partial class SimulationWindow {
                     updatedCells.Add(new Tuple<int, int, Rectangle, Cell>(i, j, newRect2, newCell2));
                 }
             }
-            
+
             if (updatedCells.Count == 0)
                 // TODO: Display info about simulation end, disable buttons, write data and charts to files
                 break;
-            
+
             foreach (var (i, j, rect, cell) in updatedCells) {
                 await Dispatcher.InvokeAsync(() => {
                     SimulationCanvas.Children.Remove(_rectArray[i][j]);
@@ -170,13 +172,39 @@ public partial class SimulationWindow {
                 });
             }
 
+            await Dispatcher.InvokeAsync(() => {
+                UpdateSimulationData(ref updatedCells);
+                _simulationChartsWindow?.UpdateCharts();
+            });
+
             await Dispatcher.InvokeAsync(UpdateTime);
-            
+
             await Task.Delay(simulationSpeed, _simulationCancellationTokenSource.Token);
         }
     }
 
-    private List<Cell> GetNeighbours(Cell cell, Rectangle rect) {
+    private void UpdateSimulationData(ref List<Tuple<int, int, Rectangle, Cell>> updatedCells) {
+        if (_simulationChartsWindow is null)
+            return;
+        _simulationChartsWindow.Data.BurningArea.Add(_simulationChartsWindow.Data.BurningArea.Last() +
+                                                     updatedCells.Count(cell => cell.Item4.BurningState ==
+                                                                            BurningState.Burning));
+        _simulationChartsWindow.Data.BurnedArea.Add(_simulationChartsWindow.Data.BurnedArea.Last() +
+                                                    updatedCells.Count(cell => cell.Item4.BurningState ==
+                                                                               BurningState.Burned));
+        _simulationChartsWindow.Data.BurningArea[^1] -= updatedCells.Count(cell => cell.Item4.BurningState ==
+                                                                               BurningState.Burned);
+        _simulationChartsWindow.Data.BurningSpeed.Add(updatedCells.Count(cell => cell.Item4.BurningState ==
+                                                                             BurningState.Burning));
+        _simulationChartsWindow.Data.DamagedVegetation.Add(_simulationChartsWindow.Data.DamagedVegetation.Last() +
+                                                           updatedCells.Count(cell => cell.Item4 is {
+                                                               BurningState: BurningState.Burning,
+                                                               TerrainType: BrushType.Forest or BrushType.Grassland
+                                                               or BrushType.Plain
+                                                           }) / _simulationChartsWindow.Data.TotalVegetation * 100);
+    }
+
+    private List<Cell> GetNeighbours(Rectangle rect) {
         try {
             var neighbours = new List<Cell>();
             // find indexes of rect in _rectArray
@@ -253,7 +281,7 @@ public partial class SimulationWindow {
     private double GetWindFactor(Cell cell, ref List<Cell> neighbours) {
         // take into account all burning neighbours from the given direction
         var windSpeed = WindSpeedSlider.Value;
-        var windDirection =  ((ComboBoxItem) WindDirectionComboBox.SelectedItem).Content.ToString();
+        var windDirection = ((ComboBoxItem)WindDirectionComboBox.SelectedItem).Content.ToString();
         var burningNeighbours = neighbours.Where(neighbour => neighbour.BurningState == BurningState.Burning).ToList();
         Dictionary<string, double> windFactors = new() {
             { "North", burningNeighbours.Count(neighbour => cell.Y < neighbour.Y && neighbour.X == cell.X) },
@@ -335,7 +363,7 @@ public partial class SimulationWindow {
         if (e.LeftButton == MouseButtonState.Pressed) {
             cell.BurningState = BurningState.Burning;
             cell.BurningTime = 0;
-            rect.Stroke = Brushes.Red;
+            rect.Stroke = Brushes.OrangeRed;
             rect.StrokeThickness = 2;
             return;
         }
@@ -359,6 +387,25 @@ public partial class SimulationWindow {
             return;
         }
 
+        _simulationChartsWindow = new SimulationChartsWindow {
+            Data = new() {
+                TotalVegetation =
+                    _cells.Count(pair => pair.Value.TerrainType is BrushType.Forest or BrushType.Grassland
+                                     or BrushType.Plain),
+                BurningArea = { _cells.Count(pair => pair.Value.BurningState == BurningState.Burning) },
+                BurningSpeed = { _cells.Count(pair => pair.Value.BurningState == BurningState.Burning) },
+                BurnedArea = { 0 },
+            }
+        };
+        _simulationChartsWindow.Data.DamagedVegetation.Add(_cells.Count(pair =>
+                                                                            pair.Value is {
+                                                                                BurningState: BurningState.Burning,
+                                                                                TerrainType: BrushType.Forest
+                                                                                or BrushType.Grassland
+                                                                                or BrushType.Plain
+                                                                            }) / _simulationChartsWindow.Data
+                                                               .TotalVegetation * 100);
+        _simulationChartsWindow.Show();
         _simulationTask = SimulateAsync();
         StartButton.Content = "Resume";
         StartButton.IsEnabled = false;
@@ -381,5 +428,9 @@ public partial class SimulationWindow {
         StartButton.IsEnabled = true;
         PauseButton.IsEnabled = false;
         StopButton.IsEnabled = false;
+    }
+
+    private void OnStop() {
+        MessageBox.Show("Simulation complete.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 }
