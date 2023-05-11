@@ -263,56 +263,66 @@ public partial class SimulationWindow {
         // Terrain type
         var terrainFactor = GetTerrainFactor(cell.TerrainType);
 
-        // Ignition factor
-        var ignitionFactor = GetIgnitionFactor(ref neighbours);
-
         // Compute final probability
-        var probability = burningNeighbours * windFactor * terrainFactor + ignitionFactor;
+        var probability = burningNeighbours * windFactor * terrainFactor;
 
         // Cap probability to 100%
         probability = Math.Min(1.0, probability);
 
         return probability;
     }
+    
+    
 
     private double GetWindFactor(Cell cell, ref List<Cell> neighbours) {
-        // take into account all burning neighbours from the given direction
         var windSpeed = WindSpeedSlider.Value;
         var windDirection = ((ComboBoxItem)WindDirectionComboBox.SelectedItem).Content.ToString();
-        var burningNeighbours = neighbours.Where(neighbour => neighbour.BurningState == BurningState.Burning).ToList();
-        Dictionary<string, double> windFactors = new() {
-            { "North", burningNeighbours.Count(neighbour => cell.Y < neighbour.Y && neighbour.X == cell.X) },
-            { "North-East", burningNeighbours.Count(neighbour => cell.Y < neighbour.Y && neighbour.X < cell.X) },
-            { "East", burningNeighbours.Count(neighbour => neighbour.X < cell.X && neighbour.Y == cell.Y) },
-            { "South-East", burningNeighbours.Count(neighbour => cell.Y > neighbour.Y && neighbour.X < cell.X) },
-            { "South", burningNeighbours.Count(neighbour => cell.Y > neighbour.Y && neighbour.X == cell.X) },
-            { "South-West", burningNeighbours.Count(neighbour => cell.Y > neighbour.Y && neighbour.X > cell.X) },
-            { "West", burningNeighbours.Count(neighbour => neighbour.X > cell.X && neighbour.Y == cell.Y) },
-            { "North-West", burningNeighbours.Count(neighbour => cell.Y < neighbour.Y && neighbour.X > cell.X) }
+        
+        var theta = GetWindDirectionAngle(windDirection!);
+        var windVectorX = Math.Cos(theta);
+        var windVectorY = Math.Sin(theta);
+
+        var leewardX = cell.X + (int)Math.Round(windVectorX);
+        var leewardY = cell.Y + (int)Math.Round(windVectorY);
+        
+        var burning = GetBurningNeighbouringCells(ref neighbours, leewardX, leewardY);
+        
+        var windFactor = Math.Pow((double)burning / neighbours.Count, 2);
+        
+        return windFactor * windSpeed * 0.1;
+    }
+    
+    private static double GetWindDirectionAngle(string windDirection) {
+        return windDirection switch {
+            "North" => 0,
+            "North-East" => Math.PI / 4,
+            "East" => Math.PI / 2,
+            "South-East" => 3 * Math.PI / 4,
+            "South" => Math.PI,
+            "South-West" => 5 * Math.PI / 4,
+            "West" => 3 * Math.PI / 2,
+            "North-West" => 7 * Math.PI / 4,
+            _ => throw new ArgumentException("Invalid wind direction.")
         };
-        // TODO: refactor windFactor
-        var windFactor = windFactors[windDirection!] + windSpeed * 0.01;
-        return windFactor;
+    }
+    
+    private static int GetBurningNeighbouringCells(ref List<Cell> neighboringCells, int xLeeward, int yLeeward) {
+        return neighboringCells.Where(cell => cell.X != xLeeward || cell.Y != yLeeward).Count(cell => cell.BurningState == BurningState.Burning);
     }
 
     private static double GetTerrainFactor(BrushType terrainType) {
         var terrainFactor = terrainType switch {
             BrushType.Clear => 0.0,
-            BrushType.Forest => 0.7,
-            BrushType.Grassland => 0.45,
-            BrushType.Plain => 0.1,
+            BrushType.Forest => 0.8,
+            BrushType.Grassland => 0.6,
+            BrushType.Plain => 0.4,
             BrushType.Mountain => 0.0,
             BrushType.Water => 0.0,
-            BrushType.HighDensityUrbanArea => 0.05,
-            BrushType.LowDensityUrbanArea => 0.1,
+            BrushType.HighDensityUrbanArea => 0.2,
+            BrushType.LowDensityUrbanArea => 0.3,
             _ => 0.0
         };
         return terrainFactor;
-    }
-
-    private static double GetIgnitionFactor(ref List<Cell> neighbours) {
-        var ignitionFactor = neighbours.Count(neighbour => neighbour.BurningState == BurningState.Burning) * 0.05;
-        return ignitionFactor;
     }
 
     private void LoadMapMenuItem_Click(object sender, RoutedEventArgs e) {
