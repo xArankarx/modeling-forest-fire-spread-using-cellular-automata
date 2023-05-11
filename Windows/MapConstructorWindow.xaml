@@ -7,13 +7,14 @@
         Title="Map Constructor" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Canvas x:Name="MapCanvas" Grid.Row="0" Width="800" Height="600" Background="White" Initialized="MapCanvas_Initialized" MouseDown="MapCanvas_MouseDown" MouseUp="MapCanvas_MouseUp" MouseEnter="MapCanvas_MouseEnter" MouseLeave="MapCanvas_MouseLeave"/>
-        <GroupBox Header="Terrain Types" Grid.Row="1" Style="{StaticResource GroupBoxStyle}">
+        <Canvas x:Name="MapCanvas" Grid.Row="1" Width="800" Height="600" Background="White" Initialized="MapCanvas_Initialized" MouseDown="MapCanvas_MouseDown" MouseUp="MapCanvas_MouseUp" MouseEnter="MapCanvas_MouseEnter" MouseLeave="MapCanvas_MouseLeave"/>
+        <GroupBox Header="Terrain Types" Grid.Row="2" Style="{StaticResource GroupBoxStyle}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                 <Button x:Name="ForestBrushButton" Content="Forest" Style="{StaticResource BrushButtonStyle}" Background="DarkGreen" Click="ForestBrushButton_Click"/>
                 <Button x:Name="GrasslandBrushButton" Content="Grassland" Style="{StaticResource BrushButtonStyle}" Background="Green" Click="GrasslandBrushButton_Click"/>
@@ -26,12 +27,19 @@
             </StackPanel>
         </GroupBox>
         
-        <GroupBox Header="Brush Size" Width="200" HorizontalAlignment="Left" Grid.Row="2" Style="{StaticResource GroupBoxStyle}">
-            <Slider x:Name="BrushSizeSlider" Grid.Row="1" Background="DarkGray" Minimum="5" Maximum="50" Value="5" Margin="10" Width="150"/>
+        <GroupBox Header="Brush Size" Width="200" HorizontalAlignment="Left" Grid.Row="3" Style="{StaticResource GroupBoxStyle}">
+            <Slider x:Name="BrushSizeSlider" Background="DarkGray" Minimum="5" Maximum="50" Value="5" Margin="10" Width="150"/>
         </GroupBox>
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button x:Name="SaveButton" Content="Save" Height="40" Width="100" Margin="20" Style="{StaticResource UtilityButtonStyle}" Background="LightGray" Foreground="Black" Click="SaveButton_Click"/>
             <Button x:Name="LoadButton" Content="Load" Height="40" Width="100" Margin="20" Style="{StaticResource UtilityButtonStyle}" Background="LightGray" Foreground="Black" Click="LoadButton_Click"/>    
         </StackPanel>
+        
+        <Menu Grid.Row="0">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open main menu" Click="OpenMainWindowMenuItem_Click" />
+                <MenuItem Header="_Exit" Click="ExitMenuItem_Click" />
+            </MenuItem>
+        </Menu>
     </Grid>
 </Window>

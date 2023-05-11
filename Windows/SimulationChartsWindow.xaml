@@ -4,13 +4,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
-        xmlns:local="clr-namespace:MFFSuCA.Windows"
         mc:Ignorable="d"
         Title="SimulationChartsWindow" ResizeMode="NoResize" SizeToContent="WidthAndHeight">
-    <!-- <Window.DataContext> -->
-    <!--     <local:SimulationChartsWindow/> -->
-    <!-- </Window.DataContext> -->
-    <Grid>
+    <Grid Name="ChartsGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -20,52 +16,64 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         
-        <lvc:CartesianChart Grid.Row="0" Grid.Column="0" Width="350" Height="250" DisableAnimations="True">
-            <lvc:CartesianChart.Series>
-                <lvc:LineSeries Title="Burning Area" Values="{Binding BurningAreaSeriesCollection}" LineSmoothness="0.7" PointGeometry="{x:Null}"/>
-            </lvc:CartesianChart.Series>
-            <lvc:CartesianChart.AxisX>
-                <lvc:Axis Title="Time"/>
-            </lvc:CartesianChart.AxisX>
-            <lvc:CartesianChart.AxisY>
-                <lvc:Axis Title="Area"/>
-            </lvc:CartesianChart.AxisY>
-        </lvc:CartesianChart>
+        <StackPanel Grid.Row="0" Grid.Column="0">
+            <Label Content="Burning Area" HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="14"/>
+            <lvc:CartesianChart Name="BurningAreaChart" Width="350" Height="250" DisableAnimations="True">
+                <lvc:CartesianChart.Series>
+                    <lvc:LineSeries Title="Burning Area" Values="{Binding BurningAreaSeriesCollection}" LineSmoothness="0.7" PointGeometry="{x:Null}"/>
+                </lvc:CartesianChart.Series>
+                <lvc:CartesianChart.AxisX>
+                    <lvc:Axis Title="Time"/>
+                </lvc:CartesianChart.AxisX>
+                <lvc:CartesianChart.AxisY>
+                    <lvc:Axis Title="Area"/>
+                </lvc:CartesianChart.AxisY>
+            </lvc:CartesianChart>
+        </StackPanel>
         
-        <lvc:CartesianChart Grid.Row="1" Grid.Column="0" Width="350" Height="250" DisableAnimations="True">
-            <lvc:CartesianChart.Series>
-                <lvc:LineSeries Title="Burned Area" Values="{Binding BurnedAreaSeriesCollection}" LineSmoothness="0.7" PointGeometry="{x:Null}"/>
-            </lvc:CartesianChart.Series>
-            <lvc:CartesianChart.AxisX>
-                <lvc:Axis Title="Time"/>
-            </lvc:CartesianChart.AxisX>
-            <lvc:CartesianChart.AxisY>
-                <lvc:Axis Title="Area"/>
-            </lvc:CartesianChart.AxisY>
-        </lvc:CartesianChart>
+        <StackPanel Grid.Row="1" Grid.Column="0">
+            <Label Content="Burned Area" HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="14"/>
+            <lvc:CartesianChart Name="BurnedAreaChart" Width="350" Height="250" DisableAnimations="True">
+                <lvc:CartesianChart.Series>
+                    <lvc:LineSeries Title="Burned Area" Values="{Binding BurnedAreaSeriesCollection}" LineSmoothness="0.7" PointGeometry="{x:Null}"/>
+                </lvc:CartesianChart.Series>
+                <lvc:CartesianChart.AxisX>
+                    <lvc:Axis Title="Time"/>
+                </lvc:CartesianChart.AxisX>
+                <lvc:CartesianChart.AxisY>
+                    <lvc:Axis Title="Area"/>
+                </lvc:CartesianChart.AxisY>
+            </lvc:CartesianChart>
+        </StackPanel>
         
-        <lvc:CartesianChart Grid.Row="0" Grid.Column="1" Width="350" Height="250" DisableAnimations="True">
-            <lvc:CartesianChart.Series>
-                <lvc:LineSeries Title="Damaged Vegetation" Values="{Binding DamagedVegetationSeriesCollection}" LineSmoothness="0.7" PointGeometry="{x:Null}"/>
-            </lvc:CartesianChart.Series>
-            <lvc:CartesianChart.AxisX>
-                <lvc:Axis Title="Time"/>
-            </lvc:CartesianChart.AxisX>
-            <lvc:CartesianChart.AxisY>
-                <lvc:Axis Title="Damaged, %"/>
-            </lvc:CartesianChart.AxisY>
-        </lvc:CartesianChart>
+        <StackPanel Grid.Row="0" Grid.Column="1">
+            <Label Content="Damaged Vegetation" HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="14"/>
+            <lvc:CartesianChart Name="DamagedVegetationChart" Width="350" Height="250" DisableAnimations="True">
+                <lvc:CartesianChart.Series>
+                    <lvc:LineSeries Title="Damaged Vegetation" Values="{Binding DamagedVegetationSeriesCollection}" LineSmoothness="0.7" PointGeometry="{x:Null}"/>
+                </lvc:CartesianChart.Series>
+                <lvc:CartesianChart.AxisX>
+                    <lvc:Axis Title="Time"/>
+                </lvc:CartesianChart.AxisX>
+                <lvc:CartesianChart.AxisY>
+                    <lvc:Axis Title="Damaged, %"/>
+                </lvc:CartesianChart.AxisY>
+            </lvc:CartesianChart>
+        </StackPanel>
         
-        <lvc:CartesianChart Grid.Row="1" Grid.Column="1" Width="350" Height="250" DisableAnimations="True">
-            <lvc:CartesianChart.Series>
-                <lvc:LineSeries Title="Burning Speed" Values="{Binding BurningSpeedSeriesCollection}" LineSmoothness="0.7" PointGeometry="{x:Null}"/>
-            </lvc:CartesianChart.Series>
-            <lvc:CartesianChart.AxisX>
-                <lvc:Axis Title="Time"/>
-            </lvc:CartesianChart.AxisX>
-            <lvc:CartesianChart.AxisY>
-                <lvc:Axis Title="Speed"/>
-            </lvc:CartesianChart.AxisY>
-        </lvc:CartesianChart>
+        <StackPanel Grid.Row="1" Grid.Column="1">
+            <Label Content="Burning Speed" HorizontalAlignment="Center" FontWeight="SemiBold" FontSize="14"/>
+            <lvc:CartesianChart Name="BurningSpeedChart" Width="350" Height="250" DisableAnimations="True">
+                <lvc:CartesianChart.Series>
+                    <lvc:LineSeries Title="Burning Speed" Values="{Binding BurningSpeedSeriesCollection}" LineSmoothness="0.7" PointGeometry="{x:Null}"/>
+                </lvc:CartesianChart.Series>
+                <lvc:CartesianChart.AxisX>
+                    <lvc:Axis Title="Time"/>
+                </lvc:CartesianChart.AxisX>
+                <lvc:CartesianChart.AxisY>
+                    <lvc:Axis Title="Speed"/>
+                </lvc:CartesianChart.AxisY>
+            </lvc:CartesianChart>
+        </StackPanel>
     </Grid>
 </Window>

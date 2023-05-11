@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -210,7 +211,7 @@ public partial class MapConstructorWindow {
 
         MapCanvas.Children.Clear();
         _rectArray = new List<List<Rectangle>>();
-        foreach (var row in serializableRectArray) {
+        foreach (var row in serializableRectArray!) {
             var rectRow = new List<Rectangle>();
             foreach (var serializableRect in row) {
                 var rect = new Rectangle {
@@ -228,5 +229,24 @@ public partial class MapConstructorWindow {
 
             _rectArray.Add(rectRow);
         }
+    }
+
+    private void OpenMainWindowMenuItem_Click(object? sender, RoutedEventArgs? e) {
+        if (Application.Current.Windows.OfType<MainWindow>().Any()) {
+            Application.Current.Windows.OfType<MainWindow>().First().Activate();
+            return;
+        }
+        var mainWindow = new MainWindow();
+        mainWindow.Show();
+    }
+
+    private void ExitMenuItem_Click(object sender, RoutedEventArgs e) {
+        OnClosing(null);
+        Close();
+    }
+
+    protected override void OnClosing(CancelEventArgs? e) {
+        OpenMainWindowMenuItem_Click(null, null);
+        Application.Current.Windows.OfType<MainWindow>().First().Activate();
     }
 }

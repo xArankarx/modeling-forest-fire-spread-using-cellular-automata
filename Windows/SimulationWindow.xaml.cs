@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -8,7 +12,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using System.Windows.Threading;
 using System.Xml.Serialization;
 using MFFSuCA.Enums;
 using MFFSuCA.Models;
@@ -49,7 +52,7 @@ public partial class SimulationWindow {
 
     private Task? _simulationTask;
 
-    private CancellationTokenSource _simulationCancellationTokenSource;
+    private CancellationTokenSource _simulationCancellationTokenSource = new();
 
     private int _currentSimulationTime;
 
@@ -104,11 +107,6 @@ public partial class SimulationWindow {
                         case BurningState.Burned:
                             continue;
                         case BurningState.Burning when ++cell.BurningTime > cell.MaximumBurningTime:
-                            // cell.BurningState = BurningState.Burned;
-                            // await Dispatcher.InvokeAsync(() => {
-                            //     rect.Fill = new SolidColorBrush(Colors.Black);
-                            //     rect.StrokeThickness = 0;
-                            // });
                             var newCell = new Cell {
                                 TerrainType = cell.TerrainType,
                                 X = cell.X,
@@ -131,15 +129,10 @@ public partial class SimulationWindow {
                     }
 
                     var neighbours = GetNeighbours(rect);
-                    // TODO: Add probability of extinguishing
-                    var probability = UpdateProbability(cell, ref neighbours);
+                    var probability = CalculateProbability(cell, ref neighbours);
                     if (!(random.NextDouble() < probability))
                         continue;
-                    // cell.BurningState = BurningState.Burning;
-                    // await Dispatcher.InvokeAsync(() => {
-                    //     rect.Stroke = new SolidColorBrush(Colors.Red);
-                    //     rect.StrokeThickness = 2;
-                    // });
+                    
                     var newCell2 = new Cell {
                         TerrainType = cell.TerrainType,
                         X = cell.X,
@@ -159,13 +152,17 @@ public partial class SimulationWindow {
                 }
             }
 
-            if (updatedCells.Count == 0)
-                // TODO: Display info about simulation end, disable buttons, write data and charts to files
+            if (updatedCells.Count == 0) {
+                if (_cells.Any(cell => cell.Value.BurningState == BurningState.Burning))
+                    continue;
+                StopButton_Click(null, null);
                 break;
+            }
 
             foreach (var (i, j, rect, cell) in updatedCells) {
                 await Dispatcher.InvokeAsync(() => {
                     SimulationCanvas.Children.Remove(_rectArray[i][j]);
+                    _cells.Remove(_rectArray[i][j]);
                     _rectArray[i][j] = rect;
                     _cells[rect] = cell;
                     SimulationCanvas.Children.Add(_rectArray[i][j]);
@@ -257,7 +254,7 @@ public partial class SimulationWindow {
         TimeTextBlock.Text = time.ToString(@"hh\:mm\:ss");
     }
 
-    private double UpdateProbability(Cell cell, ref List<Cell> neighbours) {
+    private double CalculateProbability(Cell cell, ref List<Cell> neighbours) {
         var burningNeighbours = neighbours.Count(neighbour => neighbour.BurningState == BurningState.Burning);
 
         // Wind direction and speed
@@ -333,7 +330,7 @@ public partial class SimulationWindow {
 
         SimulationCanvas.Children.Clear();
         _rectArray = new List<List<Rectangle>>();
-        foreach (var row in serializableRectArray) {
+        foreach (var row in serializableRectArray!) {
             var rectRow = new List<Rectangle>();
             foreach (var serializableRect in row) {
                 var rect = new Rectangle {
@@ -387,6 +384,13 @@ public partial class SimulationWindow {
             return;
         }
 
+        if (_cells.All(pair => pair.Value.BurningState != BurningState.Burning)) {
+            MessageBox.Show("There must be at least one burning cell to start the simulation." +
+                            " Use LMB click to set burning cells.",
+                            "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
         _simulationChartsWindow = new SimulationChartsWindow {
             Data = new() {
                 TotalVegetation =
@@ -421,16 +425,89 @@ public partial class SimulationWindow {
         StopButton.IsEnabled = true;
     }
 
-    private void StopButton_Click(object sender, RoutedEventArgs e) {
+    private void StopButton_Click(object? sender, RoutedEventArgs? e) {
         _simulationCancellationTokenSource.Cancel();
         _isPaused = false;
         StartButton.Content = "Start";
         StartButton.IsEnabled = true;
         PauseButton.IsEnabled = false;
         StopButton.IsEnabled = false;
+        OnStop();
     }
 
     private void OnStop() {
-        MessageBox.Show("Simulation complete.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        if (_simulationChartsWindow is null) {
+            MessageBox.Show("Simulation complete.",
+                            "Information",
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var result = MessageBox.Show("Simulation complete. Would you like to save simulation data and charts?",
+                                     "Information",
+                                     MessageBoxButton.YesNo, MessageBoxImage.Information);
+        if (result != MessageBoxResult.Yes)
+            return;
+        _simulationChartsWindow.SaveAll();
+    }
+
+    private void SaveParamsMenuItem_OnClick(object sender, RoutedEventArgs e) {
+        var saveFileDialog = new SaveFileDialog {
+            Filter = "Simulation parameters (*.json)|*.json",
+            InitialDirectory = Environment.CurrentDirectory
+        };
+        if (saveFileDialog.ShowDialog() != true)
+            return;
+        var simulationParameters =
+            new SimulationParameters(((ComboBoxItem)SpeedComboBox.SelectedItem).Content.ToString(),
+                                     ((ComboBoxItem)WindDirectionComboBox.SelectedItem).Content.ToString(),
+                                     WindSpeedSlider.Value);
+        var json = JsonSerializer.Serialize(simulationParameters);
+        File.WriteAllText(saveFileDialog.FileName, json);
+    }
+
+    private void LoadParamsMenuItem_OnClick(object sender, RoutedEventArgs e) {
+        var openFileDialog = new OpenFileDialog {
+            Filter = "Simulation parameters (*.json)|*.json",
+            InitialDirectory = Environment.CurrentDirectory
+        };
+        if (openFileDialog.ShowDialog() != true)
+            return;
+        var json = File.ReadAllText(openFileDialog.FileName);
+        var simulationParameters = JsonSerializer.Deserialize<SimulationParameters>(json);
+        SpeedComboBox.SelectedItem = SpeedComboBox.Items.Cast<ComboBoxItem>()
+                                                     .First(item => item.Content.ToString() ==
+                                                                    simulationParameters!.SimulationSpeed);
+        WindDirectionComboBox.SelectedItem =
+            WindDirectionComboBox.Items.Cast<ComboBoxItem>()
+                                    .First(item => item.Content.ToString() ==
+                                                   simulationParameters.WindDirection);
+        WindSpeedSlider.Value = simulationParameters.WindSpeed;
+    }
+
+    private void OpenMainWindowMenuItem_Click(object? sender, RoutedEventArgs? e) {
+        if (Application.Current.Windows.OfType<MainWindow>().Any()) {
+            Application.Current.Windows.OfType<MainWindow>().First().Activate();
+            return;
+        }
+        var mainWindow = new MainWindow();
+        mainWindow.Show();
+    }
+
+    private void ExitMenuItem_Click(object sender, RoutedEventArgs e) {
+        OnClosing(null);
+        Close();
+    }
+
+    protected override void OnClosing(CancelEventArgs? e) {
+        OpenMainWindowMenuItem_Click(null, null);
+        Application.Current.Windows.OfType<MainWindow>().First().Activate();
+    }
+
+    private void OpenResultsMenuItem_OnClick(object sender, RoutedEventArgs e) {
+        if (!Directory.Exists("results")) {
+            Directory.CreateDirectory("results");
+        }
+        Process.Start("explorer.exe", "results");
     }
 }

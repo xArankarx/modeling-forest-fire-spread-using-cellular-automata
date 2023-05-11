@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:MFFSuCA.Windows"
         mc:Ignorable="d"
         Title="SimulationWindow" Height="450" Width="800">
     <Grid>
@@ -62,12 +61,15 @@
         <Menu Grid.Row="0">
             <MenuItem Header="_File">
                 <MenuItem Header="_Open map" Click="LoadMapMenuItem_Click" />
-                <Separator></Separator>
-                <MenuItem Header="_Save simulation state" />
-                <MenuItem Header="_Load simulation state" />
+                <Separator/>
+                <MenuItem Header="_Save simulation parameters" Click="SaveParamsMenuItem_OnClick" />
+                <MenuItem Header="_Load simulation parameters" Click="LoadParamsMenuItem_OnClick" />
+                <Separator/>
+                <MenuItem Header="_Open main menu" Click="OpenMainWindowMenuItem_Click" />
+                <MenuItem Header="_Exit" Click="ExitMenuItem_Click" />
             </MenuItem>
-            <MenuItem Header="_Edit">
-                
+            <MenuItem Header="_Data">
+                <MenuItem Header="_Open results folder in explorer" Click="OpenResultsMenuItem_OnClick" />
             </MenuItem>
         </Menu>
     </Grid>

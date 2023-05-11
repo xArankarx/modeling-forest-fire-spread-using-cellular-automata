@@ -5,19 +5,17 @@ namespace MFFSuCA.Models;
 public class Cell {
     public BurningState BurningState { get; set; }
     
-    public BrushType TerrainType { get; set; }
-    
-    public double SpreadProbability { get; set; }
+    public BrushType TerrainType { get; init; }
 
-    public int BurningTime { get; set; } = 0;
+    public int BurningTime { get; set; }
     
     public int MaximumBurningTime => GetMaximumBurningTime();
     
-    public int X { get; set; }
+    public int X { get; init; }
     
-    public int Y { get; set; }
-    
-    public Cell(int x, int y, BrushType terrainType = BrushType.Clear) {
+    public int Y { get; init; }
+
+    private Cell(int x, int y, BrushType terrainType = BrushType.Clear) {
         X = x;
         Y = y;
         TerrainType = terrainType;
