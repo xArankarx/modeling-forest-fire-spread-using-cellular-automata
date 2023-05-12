@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -91,6 +92,11 @@ public partial class SimulationWindow {
     /// Indicates whether the simulation is paused.
     /// </summary>
     private bool _isPaused;
+    
+    /// <summary>
+    /// Tool tip for the wind speed slider.
+    /// </summary>
+    private ToolTip? _toolTip;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SimulationWindow"/> class.
@@ -832,6 +838,59 @@ public partial class SimulationWindow {
             MessageBox.Show("An error occurred while opening the results folder." +
                             " See error_log.txt for more information.",
                             "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    /// <summary>
+    /// Handles the mouse enter event of the wind speed slider. Shows a tooltip with the current wind speed.
+    /// </summary>
+    /// <param name="sender">Event sender.</param>
+    /// <param name="e">Event arguments.</param>
+    private void WindSpeedSlider_OnMouseEnter(object sender, MouseEventArgs e) {
+        try {
+            var slider = (Slider)sender;
+            _toolTip = new ToolTip {
+                Content = $"{slider.Value} m/s",
+                PlacementTarget = slider,
+                Placement = PlacementMode.Top,
+                IsOpen = true
+            };
+            _toolTip.Closed += (_, _) => _toolTip.IsOpen = false;
+        }
+        catch (Exception exc) {
+            Logger.Log(exc);
+        }
+    }
+
+    /// <summary>
+    /// Handles the mouse leave event of the wind speed slider. Hides the tooltip.
+    /// </summary>
+    /// <param name="sender">Event sender.</param>
+    /// <param name="e">Event arguments.</param>
+    private void WindSpeedSlider_OnMouseLeave(object sender, MouseEventArgs e) {
+        try {
+            if (_toolTip is null)
+                return;
+            _toolTip.IsOpen = false;
+        }
+        catch (Exception exc) {
+            Logger.Log(exc);
+        }
+    }
+
+    /// <summary>
+    /// Handles the value changed event of the wind speed slider. Updates the tooltip with the current wind speed.
+    /// </summary>
+    /// <param name="sender">Event sender.</param>
+    /// <param name="e">Event arguments.</param>
+    private void WindSpeedSlider_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
+        try {
+            if (_toolTip is null)
+                return;
+            _toolTip.Content = $"{e.NewValue} m/s";
+        }
+        catch (Exception exc) {
+            Logger.Log(exc);
         }
     }
 }

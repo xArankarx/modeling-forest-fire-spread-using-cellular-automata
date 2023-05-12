@@ -57,7 +57,9 @@
 
                 <StackPanel Orientation="Vertical" Margin="10">
                     <Label Content="Wind speed:" />
-                    <Slider x:Name="WindSpeedSlider" Margin="10" Minimum="0" Maximum="67" Value="0" Width="100" />
+                    <Slider x:Name="WindSpeedSlider" Margin="10" Minimum="0" Maximum="67" Value="0" Width="100"
+                            MouseEnter="WindSpeedSlider_OnMouseEnter" MouseLeave="WindSpeedSlider_OnMouseLeave"
+                            ValueChanged="WindSpeedSlider_OnValueChanged"/>
                 </StackPanel>
             </StackPanel>
         </GroupBox>
