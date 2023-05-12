@@ -893,4 +893,27 @@ public partial class SimulationWindow {
             Logger.Log(exc);
         }
     }
+
+    /// <summary>
+    /// Handles the click event of the Help menu item.
+    /// </summary>
+    /// <param name="sender">Event sender.</param>
+    /// <param name="e">Event arguments.</param>
+    private void AboutMenuItem_Click(object sender, RoutedEventArgs e) {
+        try {
+            if (Application.Current.Windows.OfType<HelpWindow>().Any()) {
+                Application.Current.Windows.OfType<HelpWindow>().First().Activate();
+                return;
+            }
+
+            var aboutWindow = new HelpWindow();
+            aboutWindow.Show();
+        }
+        catch (Exception exc) {
+            Logger.Log(exc);
+            MessageBox.Show("An error occurred while opening the about window." +
+                            " See error_log.txt for more information.",
+                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
 }

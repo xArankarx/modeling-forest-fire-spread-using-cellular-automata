@@ -9,11 +9,22 @@
         Height="450" Width="800" MinHeight="350" MinWidth="625"
         Icon="/Resources/logo.png">
     <Grid>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="1">
             <Button Content="Map Constructor" Style="{StaticResource BigButtonStyle}"
                     Click="MapConstructorButton_Click" />
             <Button Content="Simulation" Style="{StaticResource BigButtonStyle}"
                     Click="SimulationButton_Click" />
         </StackPanel>
+        
+        <Menu Grid.Row="0">
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About" Click="AboutMenuItem_Click" />
+            </MenuItem>
+        </Menu>
     </Grid>
 </Window>

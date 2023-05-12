@@ -88,6 +88,9 @@
                 <MenuItem Header="_Open results folder in explorer"
                           Click="OpenResultsMenuItem_OnClick" />
             </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About" Click="AboutMenuItem_Click" />
+            </MenuItem>
         </Menu>
     </Grid>
 </Window>
