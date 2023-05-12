@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Windows;
+using MFFSuCA.Utility;
 
-namespace MFFSuCA.Windows; 
+namespace MFFSuCA.Windows;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml
@@ -11,7 +13,15 @@ public partial class MainWindow {
     /// Initializes a new instance of the <see cref="MainWindow"/> class.
     /// </summary>
     public MainWindow() {
-        InitializeComponent();
+        try {
+            InitializeComponent();
+        }
+        catch (Exception exc) {
+            Logger.Log(exc);
+            MessageBox.Show("An error occurred while initializing the main window." +
+                            " See error_log.txt for more information.",
+                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     /// <summary>
@@ -20,13 +30,22 @@ public partial class MainWindow {
     /// <param name="sender">Event sender.</param>
     /// <param name="e">Event arguments.</param>
     private void MapConstructorButton_Click(object sender, RoutedEventArgs e) {
-        if (Application.Current.Windows.OfType<MapConstructorWindow>().Any()) {
-            Application.Current.Windows.OfType<MapConstructorWindow>().First().Activate();
-            return;
+        try {
+            if (Application.Current.Windows.OfType<MapConstructorWindow>().Any()) {
+                Application.Current.Windows.OfType<MapConstructorWindow>().First().Activate();
+                return;
+            }
+
+            var mapConstructorWindow = new MapConstructorWindow();
+            mapConstructorWindow.Show();
+            Close();
         }
-        var mapConstructorWindow = new MapConstructorWindow();
-        mapConstructorWindow.Show();
-        Close();
+        catch (Exception exc) {
+            Logger.Log(exc);
+            MessageBox.Show("An error occurred while opening the map constructor window." +
+                            " See error_log.txt for more information.",
+                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     /// <summary>
@@ -35,12 +54,21 @@ public partial class MainWindow {
     /// <param name="sender">Event sender.</param>
     /// <param name="e">Event arguments.</param>
     private void SimulationButton_Click(object sender, RoutedEventArgs e) {
-        if (Application.Current.Windows.OfType<SimulationWindow>().Any()) {
-            Application.Current.Windows.OfType<SimulationWindow>().First().Activate();
-            return;
+        try {
+            if (Application.Current.Windows.OfType<SimulationWindow>().Any()) {
+                Application.Current.Windows.OfType<SimulationWindow>().First().Activate();
+                return;
+            }
+
+            var simulationWindow = new SimulationWindow();
+            simulationWindow.Show();
+            Close();
         }
-        var simulationWindow = new SimulationWindow();
-        simulationWindow.Show();
-        Close();
+        catch (Exception exc) {
+            Logger.Log(exc);
+            MessageBox.Show("An error occurred while opening the simulation window." +
+                            " See error_log.txt for more information.",
+                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 }

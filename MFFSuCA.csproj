@@ -19,4 +19,9 @@
       <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Resources\logo.png" />
+      <Resource Include="Resources\logo.png" />
+    </ItemGroup>
+
 </Project>

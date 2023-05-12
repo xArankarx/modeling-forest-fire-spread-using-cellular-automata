@@ -1,20 +1,47 @@
 ﻿using MFFSuCA.Enums;
 
-namespace MFFSuCA.Models; 
+namespace MFFSuCA.Models;
 
+/// <summary>
+/// Class representing a cell bound to a specific rectangle on the map.
+/// </summary>
 public class Cell {
+    /// <summary>
+    /// Current burning state of the cell.
+    /// </summary>
     public BurningState BurningState { get; set; }
-    
+
+    /// <summary>
+    /// Type of the terrain.
+    /// </summary>
     public BrushType TerrainType { get; init; }
 
+    /// <summary>
+    /// Current burning time of the cell.
+    /// </summary>
     public int BurningTime { get; set; }
-    
+
+    /// <summary>
+    /// Maximum burning time of the cell.
+    /// </summary>
     public int MaximumBurningTime => GetMaximumBurningTime();
-    
+
+    /// <summary>
+    /// X coordinate of the cell.
+    /// </summary>
     public int X { get; init; }
-    
+
+    /// <summary>
+    /// Y coordinate of the cell.
+    /// </summary>
     public int Y { get; init; }
 
+    /// <summary>
+    /// Creates a new cell with the given coordinates and terrain type.
+    /// </summary>
+    /// <param name="x">X coordinate of the cell.</param>
+    /// <param name="y">Y coordinate of the cell.</param>
+    /// <param name="terrainType">Terrain type of the cell.</param>
     private Cell(int x, int y, BrushType terrainType = BrushType.Clear) {
         X = x;
         Y = y;
@@ -22,8 +49,15 @@ public class Cell {
         BurningState = BurningState.Unburned;
     }
 
+    /// <summary>
+    /// Creates a new cell with (0, 0) coordinates and Clear terrain type.
+    /// </summary>
     public Cell() : this(0, 0) { }
 
+    /// <summary>
+    /// Gets the maximum burning time of the cell based on its terrain type.
+    /// </summary>
+    /// <returns>Maximum burning time of the cell.</returns>
     private int GetMaximumBurningTime() {
         return TerrainType switch {
             BrushType.Forest => 5,

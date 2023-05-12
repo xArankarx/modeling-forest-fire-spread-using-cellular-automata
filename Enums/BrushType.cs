@@ -1,7 +1,9 @@
-﻿namespace MFFSuCA.Enums; 
+﻿namespace MFFSuCA.Enums;
 
-public enum BrushType
-{
+/// <summary>
+/// Enumerates the different types of brushes that can be used to paint the map.
+/// </summary>
+public enum BrushType {
     Clear,
     Forest,
     Grassland,
